@@ -1,8 +1,14 @@
+// --------------- LIBRERIAS ---------------
+
 #include <signal.h>  // Biblioteca para manejar señales
 #include <stdio.h>   // Biblioteca para entrada/salida
 #include <pigpio.h>  // Biblioteca para controlar GPIO de Raspberry Pi
 
-// ------ Datos Iniciales ------
+// --------------- GLOBALES ---------------
+
+volatile sig_atomic_t senal_recibida = 0; // Almacenar la senal recibida
+
+// --------------- DECLARACIONES ---------------
 
 #define TAMANO 8 // Tamaño matriz de LEDs
 // Pines GPIO columnas
@@ -10,27 +16,51 @@ const int pines_positivos[TAMANO] = {26, 19, 13, 6, 5, 11, 9, 10};
 // Pines GPIO filas
 const int pines_negativos[TAMANO] = {21, 20, 16, 12, 7, 8, 25, 24};
 
-// Representación de una imagen en la matriz de LEDs
-int imagen[TAMANO][TAMANO] = {
-        {1, 0, 0, 0, 0, 0, 0, 1},
-        {0, 1, 0, 0, 0, 0, 1, 0},
-        {0, 0, 1, 0, 0, 1, 0, 0},
-        {0, 0, 0, 1, 1, 0, 0, 0},
-        {0, 0, 0, 1, 1, 0, 0, 0},
-        {0, 0, 1, 0, 0, 1, 0, 0},
-        {0, 1, 0, 0, 0, 0, 1, 0},
-        {1, 0, 0, 0, 0, 0, 0, 1}
-};//BEnja
+// --------------- MAIN ---------------
+int main() {
+    
+    // Inicializa la biblioteca pigpio
+    if (gpioInitialise() == PI_INIT_FAILED) {
+        printf("ERROR: No se pudo inicializar GPIO.\n");
+        return 1;
+    }
 
-// Manejo de señales
+    // Inicializa los LEDs
+    inicializar_leds(pines_positivos, pines_negativos);
 
-volatile sig_atomic_t senal_recibida = 0; // Almacenar la senal recibida
+    // Registra la función sigint_handler para manejar la senal de interrupcion
+    signal(SIGINT, sigint_handler);
+    printf("Presionar CTRL-C para salir.\n");
 
-void sigint_handler(int signal) {
-    senal_recibida = signal;
+    // Prueba de los LEDs hasta que se reciba una senal de interrupcion
+    while (!senal_recibida) {
+        testear_y_mostrar_leds();//BENJA
+    }
+
+    // Finaliza los LEDs
+    finalizar_leds(pines_positivos, pines_negativos);
+
+    // Finaliza la biblioteca pigpio
+    gpioTerminate();
+
+    printf("\n");
+    return 0;
 }
 
-// ------ Control de LEDs ------
+// --------------- DISPLAY --------------
+
+// Muestra una imagen en la matriz de LEDs y hace parpadear los LEDs
+void testear_y_mostrar_leds() {//BENJA
+    for (int columna = 0; columna < TAMANO; columna++) {
+        for (int fila = 0; fila < TAMANO; fila++) {
+            senal_led_coordinado(fila, columna, imagen[fila][columna]); // Mostrar la imagen
+            time_sleep(0.1); // Esperar 100 milisegundos
+            senal_led_coordinado(fila, columna, 0); // Apagar el LED
+        } //BENJA
+    }
+}
+
+// --------------- CONTROLADOR ---------------
 
 // Inicializa los LEDs configurando los pines como salida
 void inicializar_leds(int pines_positivos[TAMANO], int pines_negativos[TAMANO]) {
@@ -65,42 +95,26 @@ void senal_led_coordinado(int fila, int columna, int estado) {
     }
 }
 
-// Muestra una imagen en la matriz de LEDs y hace parpadear los LEDs
-void testear_y_mostrar_leds() {//BENJA
-    for (int columna = 0; columna < TAMANO; columna++) {
-        for (int fila = 0; fila < TAMANO; fila++) {
-            senal_led_coordinado(fila, columna, imagen[fila][columna]); // Mostrar la imagen
-            time_sleep(0.1); // Esperar 100 milisegundos
-            senal_led_coordinado(fila, columna, 0); // Apagar el LED
-        } //BENJA
-    }
+
+// --------------- MENU ---------------
+
+
+
+// --------------- UTILS ---------------
+
+void sigint_handler(int signal) {
+    senal_recibida = signal;
 }
 
-int main() {
-    // Inicializa la biblioteca pigpio
-    if (gpioInitialise() == PI_INIT_FAILED) {
-        printf("ERROR: No se pudo inicializar GPIO.\n");
-        return 1;
-    }
+// --------------- IMAGENES ---------------
 
-    // Inicializa los LEDs
-    inicializar_leds(pines_positivos, pines_negativos);
-
-    // Registra la función sigint_handler para manejar la senal de interrupcion
-    signal(SIGINT, sigint_handler);
-    printf("Presionar CTRL-C para salir.\n");
-
-    // Prueba de los LEDs hasta que se reciba una senal de interrupcion
-    while (!senal_recibida) {
-        testear_y_mostrar_leds();//BENJA
-    }
-
-    // Finaliza los LEDs
-    finalizar_leds(pines_positivos, pines_negativos);
-
-    // Finaliza la biblioteca pigpio
-    gpioTerminate();
-
-    printf("\n");
-    return 0;
-}
+int imagen[TAMANO][TAMANO] = {
+        {1, 0, 0, 0, 0, 0, 0, 1},
+        {0, 1, 0, 0, 0, 0, 1, 0},
+        {0, 0, 1, 0, 0, 1, 0, 0},
+        {0, 0, 0, 1, 1, 0, 0, 0},
+        {0, 0, 0, 1, 1, 0, 0, 0},
+        {0, 0, 1, 0, 0, 1, 0, 0},
+        {0, 1, 0, 0, 0, 0, 1, 0},
+        {1, 0, 0, 0, 0, 0, 0, 1}
+};
