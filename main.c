@@ -65,23 +65,6 @@ void senal_led_coordinado(int fila, int columna, int estado) {
     }
 }
 
-// Enciende un LED
-void prender_led(int pin) {
-    gpioWrite(pin, PI_HIGH);
-}
-
-// Apaga un LED
-void apagar_led(int pin) {
-    gpioWrite(pin, PI_LOW);
-}
-
-// Hace parpadear un LED durante un tiempo determinado
-void parpadear_led(int pin, float milisegundos) {
-    prender_led(pin);
-    time_sleep(milisegundos / 1000.0); // Convertir milisegundos a segundos
-    apagar_led(pin);
-}
-
 // Muestra una imagen en la matriz de LEDs y hace parpadear los LEDs
 void testear_y_mostrar_leds() {//BENJA
     for (int columna = 0; columna < TAMANO; columna++) {
