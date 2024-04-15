@@ -35,6 +35,7 @@ void renderizar_imagen_2();
 void mostrar_fotograma();
 void mostrar_fotograma_2();
 void testear_y_mostrar_leds()
+int interrupcion_consola();
 void senal_led_coordinado();
 void control_led();
 void mostrar_menu();
@@ -88,7 +89,7 @@ void renderizar_animacion_3(float seg_duracion, int animcion[][TAMANO][TAMANO], 
     // Bucle que renderiza la imagen por x tiempo
     // Tiene que mostrar los todos los frames de animacion, y volver a repetirse por el x tiempo
     // Finalizar luego del x tiempo
-    while ((time_time() - tiempo_inicio) < seg_duracion)
+    while ((time_time() - tiempo_inicio) <= seg_duracion)
     {
         if (frame_actual > frames_animacion) { // La animacion termino entonces se repite
             frame_actual = 0;
@@ -111,7 +112,7 @@ void renderizar_animacion_2(float seg_duracion, int animacion[][TAMANO][TAMANO],
     // Bucle que renderiza la imagen por x tiempo
     // Tiene que mostrar los todos los frames de animacion, y volver a repetirse por el x tiempo
     // Finalizar luego del x tiempo
-    while (frame_contador < frames_totales)
+    while (frame_contador <= frames_totales)
     {
         if (frame_actual > frames_animacion) { // La animacion termino entonces se repite
             frame_actual = 0;
@@ -126,6 +127,8 @@ void renderizar_animacion_2(float seg_duracion, int animacion[][TAMANO][TAMANO],
     
 }
 
+// FUNCIONA EN BASE A FOTOGRAMAS
+
 void renderizar_imagen(float seg_duracion, int imagen[TAMANO][TAMANO]) {
     int frames_totales = seg_duracion * FOTOGRAMAS_POR_SEGUNDO ; //CUanto frames en el x tiempo
 
@@ -133,61 +136,34 @@ void renderizar_imagen(float seg_duracion, int imagen[TAMANO][TAMANO]) {
     copiar_imagen(imagen, imagen_actual);
     
     int frames = 0;
-    while (frames < frames_totales)
+    while (frames <= frames_totales)
     {
+        if (interrupcion_consola() == 1) { break; }
         mostrar_fotograma(imagen_actual);
         frames++; 
     }
+
+    printf("Se mostraron %i de %i frames.", frames, frames_totales);
 }
 
-//TIEMPO
+// FUNCIONA EN BASE A TIEMPO
 void renderizar_imagen_2(float seg_duracion, int imagen[TAMANO][TAMANO]) {
     double tiempo_inicio = time_time();
 
     int imagen_actual[TAMANO][TAMANO];
     copiar_imagen(imagen, imagen_actual);
     
-    int frames = 0;
-    while ((time_time() - tiempo_inicio) < seg_duracion) {
+    // Mientras no pase el tiempo de la rednerizacion y no se interrumpa
+    while (((time_time() - tiempo_inicio) <= seg_duracion)) {
+        if (interrupcion_consola() == 1) { break; }
         mostrar_fotograma(imagen_actual);
-        frames++;
     }
-}
 
+    double tiempo_transcurrido = (time_time() - tiempo_inicio);
+    printf("Se mostro la imagen por %d segundos.", tiempo_transcurrido);
+}
 
 void mostrar_fotograma(int imagen[TAMANO][TAMANO]) {
-    // Tiempo de inicio del fotograma
-    double tiempo_inicio = time_time();
-    // Calcular el tiempo de espera para cada LED
-    double tiempo_espera = TIEMPO_POR_FOTOGRAMA / (TAMANO * TAMANO);
-
-    // Mostrar el fotograma en la matriz de LEDs
-    for (int columna = 0; columna < TAMANO; columna++) {
-        for (int fila = 0; fila < TAMANO; fila++) {
-            int valor_pixel = imagen[TAMANO][TAMANO];
-            if (valor_pixel == 1) {
-                senal_led_coordinado(fila, columna, 1);
-                time_sleep(tiempo_espera);
-                senal_led_coordinado(fila, columna, 0);
-            } else {
-                time_sleep(tiempo_espera);
-                senal_led_coordinado(fila, columna, 0);
-            }
-        }
-    }
-
-    // Calcular el tiempo transcurrido
-    double tiempo_transcurrido = time_time() - tiempo_inicio;
-    
-    // Verificar si el tiempo transcurrido es menor que TIEMPO_POR_FOTOGRAMA
-    if (tiempo_transcurrido < TIEMPO_POR_FOTOGRAMA) {
-        // Esperar el tiempo restante del fotograma
-        time_sleep(TIEMPO_POR_FOTOGRAMA - tiempo_transcurrido);
-    }
-}
-
-// EN CASO DE NO FUNCIONAR EL PRIMERO
-void mostrar_fotograma_2(int imagen[TAMANO][TAMANO]) {
     // Calcular el tiempo de espera para cada LED
     double tiempo_espera = TIEMPO_POR_FOTOGRAMA / (TAMANO * TAMANO);
 
@@ -364,13 +340,30 @@ void copiar_imagen(int imagen_original[TAMANO][TAMANO], int imagen_copia[TAMANO]
     }
 }
 
-void extraer_frame(int frame, int animcion[][TAMANO][TAMANO], int frame_extraido[TAMANO][TAMANO]) {
+void extraer_frame(int frame, int animacion[][TAMANO][TAMANO], int frame_extraido[TAMANO][TAMANO]) {
     int frame_actual[TAMANO][TAMANO];
     for (int i = 0; i < TAMANO; i++) {
         for (int j = 0; j < TAMANO; j++) {
             frame_actual[i][j] = animacion[frame][i][j];
         }
     }
+
+    return
+}
+
+int interrupcion_consola() {
+    int opcion;
+    if (senal_recibida) {
+        printf("Menu de Interrupcion:\nDesea Interrumpir? -> [0] Si, [1] No, Salir: ");
+        scanf("%i", &opcion);
+        while (opcion < 0 || opcion > 1) 
+        {
+            printf("[!] Opcion Invalida.\n[0] Si, [1] No, Salir: ")
+            scanf("%i", opcion);
+        }
+        return 1;
+    }
+    return 0;
 }
 
 // --------------- IMAGENES ---------------
