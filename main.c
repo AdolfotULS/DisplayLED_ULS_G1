@@ -9,18 +9,19 @@
 // --------------- GLOBALES ---------------
 
 #define TAMANO 8 // Tamaño matriz de LEDs
-#define FOTOGRAMAS_POR_SEGUNDO 30 
-#define TIEMPO_POR_FOTOGRAMA (1.0 / FOTOGRAMAS_POR_SEGUNDO)
-#define FOTOGRAMAS_POR_SEGUNDO_ANIMACION 3 
-#define TIEMPO_POR_FOTOGRAMA_ANIMACION (1.0 / FOTOGRAMAS_POR_SEGUNDO_ANIMACION)
+#define FOTOGRAMAS_POR_SEGUNDO 30 // Velocidad de otoframas por segundo para imagenes
+#define TIEMPO_POR_FOTOGRAMA (1.0 / FOTOGRAMAS_POR_SEGUNDO) // Tiempo de demora de un frame
+#define FOTOGRAMAS_POR_SEGUNDO_ANIMACION 3 // Velocidad de fotogramas para animaciones
+#define TIEMPO_POR_FOTOGRAMA_ANIMACION (1.0 / FOTOGRAMAS_POR_SEGUNDO_ANIMACION) // Teimpo de demora por imagen de la animacion
 
-const int pines_positivos[TAMANO] = {26, 19, 13, 6, 5, 11, 9, 10}; // Pines GPIO columnas
+const int pines_positivos[TAMANO] = {26, 19, 13, 6, 5, 11, 9, 10}; // Pines Positivos GPIO | Columnas
 
-const int pines_negativos[TAMANO] = {21, 20, 16, 12, 7, 8, 25, 24}; // Pines GPIO filas
+const int pines_negativos[TAMANO] = {21, 20, 16, 12, 7, 8, 25, 24}; // Pines Negativos GPIO | Filas
 
-volatile sig_atomic_t senal_recibida = 0; // Almacenar la senal recibida
+volatile sig_atomic_t senal_recibida = 0; // Almacenar la senal recibida de consola
 
 // --------------- DECLARACIONES ---------------
+// Declaraciones de todas las funciones para llamarlas de cualquier parte del codigo
 
 int inicializar_gpio();
 void finalizar_gpio();
@@ -41,8 +42,13 @@ void copiar_imagen();
 
 // --------------- MAIN ---------------
 
+/*  
+    Programa Principal
+*/
+
 void main() {  
-    if (inicializar_gpio() == 0){
+    //Inicializacon de los GPIO y tablero de leds.
+    if (inicializar_gpio() == 0) {
         printf("No se ha podido Inicializar GPIO.\n")
         return 1;
     }
@@ -201,59 +207,113 @@ void mostrar_fotograma_2(int imagen[TAMANO][TAMANO]) {
 
 // --------------- CONTROLADOR ---------------
 
+/*
+    Funcion: Probar los leds.
+    Ingreso: NADA.
+    Salida: NADA.
+    Detalles: Prende todos los leds en rapida sucesion con respecto
+    a una imagen predeterminada.
+    Autores: Benjamin M.
+*/
 void testear_y_mostrar_leds() {
-    for (int columna = 0; columna < TAMANO; columna++) {
-        for (int fila = 0; fila < TAMANO; fila++) {
+    for (int columna = 0; columna < TAMANO; columna++) { // Recorre los pines positivos
+        for (int fila = 0; fila < TAMANO; fila++) { //Recorres pines negativos
             senal_led_coordinado(fila, columna, imagen[fila][columna]); // Mostrar la imagen
-            time_sleep(0.0001); //Segundos
+            time_sleep(0.0001); // Tiempo que estara prendido el led
             senal_led_coordinado(fila, columna, 0); // Apagar el LED
             
         } 
     }
 }
 
+/*
+    Funcion: Inicializar LEDS y Pines.
+    Ingreso: Arreglo de los pines postivos y negativos.
+    Salida: NADA.
+    Detalles: Tiene como objetivo iniciar los GPIO para
+    hacer uso de las leds y iniciarlas apagarlas.
+    Autores: Benjamin M.
+*/
 void inicializar_leds(int pines_positivos[TAMANO], int pines_negativos[TAMANO]) {
-    for (int pin = 0; pin < TAMANO; pin++) {
-        gpioSetMode(pines_positivos[pin], PI_OUTPUT);
-        gpioSetMode(pines_negativos[pin], PI_OUTPUT);
-        control_led(pines_positivos[pin], pines_negativos[pin], 0);
+    for (int pin = 0; pin < TAMANO; pin++) { // Indice del pin
+        gpioSetMode(pines_positivos[pin], PI_OUTPUT); // Poner pines GPIO positivos en OUTPUT
+        gpioSetMode(pines_negativos[pin], PI_OUTPUT); // Poner pines GPIO positivos en OUTPUT
+        control_led(pines_positivos[pin], pines_negativos[pin], 0); // Apagar LED
     }
 }
 
+
+/*
+    Funcion: Finalizar LEDS y Pines.
+    Ingreso: Arreglo de los pines postivos y negativos.
+    Salida: NADA.
+    Detalles: Tiene como objetivo apagar las leds y luego
+    finalizar la salida de datos de los GPIO.
+    Autores: Benjamin M.
+*/
 void finalizar_leds(int pines_positivos[TAMANO], int pines_negativos[TAMANO]) {
-    for (int pin = 0; pin < TAMANO; pin++) {
-        control_led(pines_positivos[pin], pines_negativos[pin], 0);
-        gpioSetMode(pines_positivos[pin], PI_INPUT);
-        gpioSetMode(pines_negativos[pin], PI_INPUT);
+    for (int pin = 0; pin < TAMANO; pin++) { // Indice del pin
+        control_led(pines_positivos[pin], pines_negativos[pin], 0); // Apagar LED
+        gpioSetMode(pines_positivos[pin], PI_INPUT); // Poner pines GPIO positivos en INPUT
+        gpioSetMode(pines_negativos[pin], PI_INPUT); // Poner pines GPIO negativos en INPUT
     }
 }
 
+/*
+    Funcion: Prender y apagar LEDs con respecto a su posicion en dos dimensiones.
+    Ingreso: Fila y columna de la posicion, estado de la led.
+    Salida: NADA.
+    Detalles: Facilita el prendido de apagado de las leds segun una posicion 
+    virtual de las leds en un arreglo de dos dimensiones.
+    Autores: Benjamin M. | Mejoras: Adolfo T.
+*/
 void senal_led_coordinado(int fila, int columna, int estado) {
-    int pin_positivo = pines_positivos[columna];
-    int pin_negativo = pines_negativos[fila];
-    control_led(pin_positivo, pin_negativo, estado);
+    int pin_positivo = pines_positivos[columna]; // Obtener el valor del pin positivo en la posicion
+    int pin_negativo = pines_negativos[fila]; // Obtener el valor del pin negativo en la posicion
+    control_led(pin_positivo, pin_negativo, estado); // Cambiar el estado del LED
 }
 
+/*
+    Funcion: Prender y apagar led segun su posicion de pines.
+    Ingreso: Pin positivo y negativo de una led correspondiente, su estado.
+    Salida: NADA.
+    Detalles: Facilita el cambio de estado de una leds unicamente con sus
+    pines correspondientes.
+    Autores: Adolfo T.
+*/
 void control_led(int pin_positivo, int pin_negativo, int estado) {
-    if (estado) {
-        gpioWrite(pin_positivo, PI_HIGH);
-        gpioWrite(pin_negativo, PI_LOW);
-    } else {
-        gpioWrite(pin_positivo, PI_LOW);
-        gpioWrite(pin_negativo, PI_HIGH);
+    if (estado) { // Si el estado es 1 entonces se quiere pender el led.
+        gpioWrite(pin_positivo, PI_HIGH); // Enviar Señal Positiva al pin positivo
+        gpioWrite(pin_negativo, PI_LOW); // Enviar señal negativa al pin negativo
+    } else { // El estado no es 1 entonces apagara el led
+        gpioWrite(pin_positivo, PI_LOW); // Enviar Señal negativa al pin positivo
+        gpioWrite(pin_negativo, PI_HIGH); // Enviar señal positiva al pin negativo
     }
 }
+
+/*
+    Funcion: Inicializar GPIO y LEDs
+    Ingreso: NADA
+    Salida: Devuelve si se pudo inicializar correctamente.
+    Detalles: Tiene como objetivo iniciar a gpio y las
+    leds.
+    Autores: Adolfo T. & Benjamin M.
+*/
 
 int inicializar_gpio() {
+    // Inicializar GPIO
     if (gpioInitialise() == PI_INIT_FAILED) {
-        return 0;
+        return 0; // Devolver 0 si no se pudo inicializar.
     }
+    // Inicializar LEDs
     inicializar_leds(pines_positivos, pines_negativos);
-    return 1;
+    return 1; // Devolver 1 si todo se realizo correctamente.
 }
 
 void finalizar_gpio() {
+    // Finaliza las LEDs
     finalizar_leds(pines_positivos, pines_negativos);
+    // Terminar los pines GPIO
     gpioTerminate();
 }
 
