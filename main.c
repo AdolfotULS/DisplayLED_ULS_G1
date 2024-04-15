@@ -102,7 +102,7 @@ void renderizar_animacion_3(float seg_duracion, int animcion[][TAMANO][TAMANO], 
     
 }
 
-void renderizar_animacion_2(float seg_duracion, int animcion[][TAMANO][TAMANO], int frames_animacion) {
+void renderizar_animacion_2(float seg_duracion, int animacion[][TAMANO][TAMANO], int frames_animacion) {
     int frames_totales = seg_duracion * FOTOGRAMAS_POR_SEGUNDO_ANIMACION; //Cuantos fotogramas se pueden en ese tiempoo
     int frame_contador = 0; //Frame actual hasta los totales
     int frame_actual = 0; //Frame que esta mostrando
@@ -171,6 +171,7 @@ void mostrar_fotograma(int imagen[TAMANO][TAMANO]) {
                 senal_led_coordinado(fila, columna, 0);
             } else {
                 time_sleep(tiempo_espera);
+                senal_led_coordinado(fila, columna, 0);
             }
         }
     }
@@ -193,13 +194,15 @@ void mostrar_fotograma_2(int imagen[TAMANO][TAMANO]) {
     // Mostrar el fotograma en la matriz de LEDs
     for (int columna = 0; columna < TAMANO; columna++) {
         for (int fila = 0; fila < TAMANO; fila++) {
-            int valor_pixel = imagen[TAMANO][TAMANO];
-            if (valor_pixel == 1) {
-                senal_led_coordinado(fila, columna, 1);
-                time_sleep(tiempo_espera);
-                senal_led_coordinado(fila, columna, 0);
-            } else {
-                time_sleep(tiempo_espera);
+            // Obtiene si del arreglo si la led debe de prenserse
+            int valor_pixel = imagen[TAMANO][TAMANO]; 
+            if (valor_pixel) { // Si el pixel es 1 entonces se prende
+                senal_led_coordinado(fila, columna, 1); // Prende la led de la posicion correspondiente
+                time_sleep(tiempo_espera); // Espera el tiempo necesario
+                senal_led_coordinado(fila, columna, 0); // Apaga la led de la posicion correspondiente
+            } else { // Esa parte de la imagen debe de estar apagada
+                senal_led_coordinado(fila, columna, 0); // Apaga la led
+                time_sleep(tiempo_espera); // Espera el tiemppo necesario
             }
         }
     }
