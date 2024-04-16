@@ -45,9 +45,9 @@ void leds_sucesion();
 void testear_leds();
 void sigint_handler(int signal);
 
-    // --------------- MAIN ---------------/
+// --------------- MAIN ---------------/
 
-    int main()
+int main()
 {
     // Inicializacon de los GPIO y tablero de leds.
     if (inicializar_gpio() == 0)
@@ -58,7 +58,7 @@ void sigint_handler(int signal);
     signal(SIGINT, sigint_handler); // Iniciar el escucha de la consola
     testear_leds();                 // Inicial animacion de prendido del display
 
-    mostrar_menu();
+    mostrar_menu(); //Llamar al menu
 
     printf("Finalizando programa...");
     finalizar_gpio(); // Finalizar todos los procesos de las LEDs.
@@ -84,6 +84,10 @@ void renderizar_animacion_2(double seg_duracion, int animacion[][TAMANO][TAMANO]
 
     while ((time_time() - tiempo_inicio) < seg_duracion) // Ejecutar mientras el tiempo transcurrido sea menor a la duracion
     {
+        if (interrupcion_consola() == 1)
+        {
+            break; // Termina el proceso de renderizado
+        } // En caso de que se quiera interrumpir el proceso desde la consola
         if (frame_actual > frames_totales)
         {                     // Si se recorreieron todos los frames de la animacion
             frame_actual = 0; // Se devuelve al primero
@@ -114,6 +118,10 @@ void renderizar_animacion(double seg_duracion, int animacion[][TAMANO][TAMANO], 
 
     while (frame_contador < frames_totales) // Mientras no se hayan mostrado todos los frames se ejecuta
     {
+        if (interrupcion_consola() == 1)
+        {
+            break; // Termina el proceso de renderizado
+        } // En caso de que se quiera interrumpir el proceso desde la consola
         if (frame_actual > frames_anim)
         {                     // Si se recorreieron todos los frames de la animacion
             frame_actual = 0; // Se devuelve al primero
@@ -153,7 +161,7 @@ void renderizar_imagen(double seg_duracion, int imagen[TAMANO][TAMANO])
         frames++;                         // Aumentar el contador de los frames mostrados
     }
 
-    printf("Se mostraron %i de %i frames.", frames, frames_totales);
+    // printf("Se mostraron %i de %i frames.", frames, frames_totales);
 }
 
 /*
@@ -180,8 +188,8 @@ void renderizar_imagen_2(double seg_duracion, int imagen[TAMANO][TAMANO])
         mostrar_fotograma(imagen_actual); // Mostrar frame de la imagen
     }
 
-    double tiempo_transcurrido = (time_time() - tiempo_inicio); // Tiempo transcurrido
-    printf("Se mostro la imagen por %d segundos.", tiempo_transcurrido);
+    // double tiempo_transcurrido = (time_time() - tiempo_inicio); // Tiempo transcurrido
+    // printf("Se mostro la imagen por %d segundos.", tiempo_transcurrido);
 }
 
 void mostrar_fotograma(int imagen[TAMANO][TAMANO])
@@ -246,7 +254,7 @@ void leds_sucesion()
         for (int fila = 0; fila < TAMANO; fila++)
         {
             senal_led_coordinado(fila, columna, 1); // Encender el LED
-            time_sleep(0.05);                       // Esperar 500 milisegundos
+            time_sleep(0.05);                       // Esperar
             senal_led_coordinado(fila, columna, 0); // Apagar el LED
         }
     }
