@@ -26,6 +26,8 @@ volatile sig_atomic_t senal_recibida = 0; // Almacenar la senal recibida de cons
 int inicializar_gpio();
 void finalizar_gpio();
 int mostrar_menu();
+void sub_menu_imagen();
+void sub_menu_animacion();
 void copiar_imagen();
 void extraer_frame();
 void renderizar_animacion();
@@ -301,28 +303,103 @@ void finalizar_gpio() {
 
 void mostrar_menu(){
     int opcion;
-    printf("INGRESE UNA OPCION \n1-Imagen 2-Video 3-Salir");
-    scanf("%d",&opcion);
-    switch (opcion)
-    {
-    case 1:
-            printf("\nSeleccione la imagen \n1- Carita feliz 2- Opcion2");
-            return 1;
+  while (1) {
+        printf("\n--- Menú Principal ---\n");
+        printf("1. Mostrar imagen\n");
+        printf("2. Mostrar animación\n");
+        printf("Q. Salir\n");
+        printf("Seleccione una opción: ");
+        scanf(" %c", &opcion); // Se utiliza " %c" para ignorar el salto de línea
 
-            break;
-    case 2:
-            printf("\nSeleccione la animacion");
-            return 2
-
-            break;
-    default:
-            printf("");
-            return 3
-
-            break;
+        switch (opcion) {
+            case '1':
+                sub_menu_imagen();
+                break;
+            case '2':
+                sub_menu_animacion();
+                break;
+            case 'q':
+            case 'Q':
+                printf("Saliendo del programa...\n");
+                exit(0);
+            default:
+                printf("Opción no válida. Intente de nuevo.\n");
+                break;
+        }
     }
-    
-    return opcion;
+
+    return 0;
+}
+
+// Submenú para seleccionar una imagen
+void sub_menu_imagen() {
+    int opcion;
+    while (1) {
+        printf("\n--- Submenú Imágenes ---\n");
+        printf("1. Imagen 1\n");
+        printf("2. Imagen 2\n");
+        printf("3. Imagen 3\n");
+        printf("B. Retroceder\n");
+        printf("Q. Salir\n");
+        printf("Seleccione una imagen o B para retroceder: ");
+        scanf(" %c", &opcion);
+
+        switch (opcion) {
+            case '1':
+                renderizar_imagen(float seg_duracion, int imagen[TAMANO][TAMANO]);
+                break;
+            case '2':
+                renderizar_imagen_2(float seg_duracion, int imagen[TAMANO][TAMANO]);
+                break;
+            case 'b':
+            case 'B':
+                return; // Salir del submenú
+            case 'q':
+            case 'Q':
+                printf("Saliendo del programa...\n");
+                exit(0);
+            default:
+                printf("Opción no válida.\n");
+                break;
+        }
+    }
+}
+
+// Submenú para seleccionar una animación
+void sub_menu_animacion() {
+    int opcion;
+    while (1) {
+        printf("\n--- Submenú Animaciones ---\n");
+        printf("1. Animación 1\n");
+        printf("2. Animación 2\n");
+        printf("3. Animación 3\n");
+        printf("B. Retroceder\n");
+        printf("Q. Salir\n");
+        printf("Seleccione una animación o B para retroceder: ");
+        scanf(" %c", &opcion);
+
+        switch (opcion) {
+            case '1':
+                renderizar_animacion(int num_repeticiones,float seg_duracion_por_imagen, int animacion[][TAMANO][TAMANO]);
+                break;
+            case '2':
+                renderizar_animacion_2(int num_repeticiones,float seg_duracion_por_imagen, int animacion[][TAMANO][TAMANO]);
+                break;
+            case '3':
+                renderizar_animacion_3(int num_repeticiones,float seg_duracion_por_imagen, int animacion[][TAMANO][TAMANO]);
+                break;
+            case 'b':
+            case 'B':
+                return; // Salir del submenú
+            case 'q':
+            case 'Q':
+                printf("Saliendo del programa...\n");
+                exit(0);
+            default:
+                printf("Opción no válida.\n");
+                break;
+        }
+    }
 }
 
 // --------------- UTILS ---------------
