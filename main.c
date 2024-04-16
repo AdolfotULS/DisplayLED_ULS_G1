@@ -43,7 +43,7 @@ void leds_en_circular();
 void leds_en_x();
 void leds_sucesion();
 void testear_leds();
-void sigint_handler(int signal)
+void sigint_handler(int signal);
 
     // --------------- MAIN ---------------/
 
