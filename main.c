@@ -738,4 +738,5 @@ int (*animacion_1[4])[TAMANO][TAMANO] = {
     &seta_orejas_arriba,
     &seta_arriba_2,
     &cerdo_raro,
-    &jefe_ojo};
+    &jefe_ojo
+};
