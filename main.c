@@ -58,7 +58,7 @@ int main()
     signal(SIGINT, sigint_handler); // Iniciar el escucha de la consola
     testear_leds();                 // Inicial animacion de prendido del display
 
-    mostrar_menu(); //Llamar al menu
+    mostrar_menu(); // Llamar al menu
 
     printf("Finalizando programa...");
     finalizar_gpio(); // Finalizar todos los procesos de las LEDs.
@@ -146,10 +146,8 @@ void renderizar_animacion(double seg_duracion, int animacion[][TAMANO][TAMANO], 
 void renderizar_imagen(double seg_duracion, int imagen[TAMANO][TAMANO])
 {
     int frames_totales = seg_duracion * FOTOGRAMAS_POR_SEGUNDO; // Cantidad de frames posibles en el tiempo de duración
-    int frames = 0;                                             // Contador de frames mostrados
-
-    int imagen_actual[TAMANO][TAMANO];    // Guardado de la imagen a mostrar
-    copiar_imagen(imagen, imagen_actual); // Clonar la imagen ingresada a una variable local
+    double espera_por_led = TIEMPO_POR_FOTOGRAMA / (TAMANO * TAMANO);
+    int frames = 0; // Contador de frames mostrados
 
     while (frames < frames_totales) // Mientras no se hayan mostrado todos los frames
     {
@@ -157,63 +155,55 @@ void renderizar_imagen(double seg_duracion, int imagen[TAMANO][TAMANO])
         {
             break; // Termina el proceso de renderizado
         } // En caso de que se quiera interrumpir el proceso desde la consola
-        mostrar_fotograma(imagen_actual); // Mostrar frame de la imagen
-        frames++;                         // Aumentar el contador de los frames mostrados
+        for (int columna = 0; columna < TAMANO; columna++)
+        {
+            for (int fila = 0; fila < TAMANO; fila++)
+            {
+                int valor_pixel = imagen[fila][columna];
+                if (valor_pixel)
+                {                                           // Si el pixel es 1 entonces se prende
+                    senal_led_coordinado(fila, columna, 1); // Prende la led de la posicion correspondiente
+                    time_sleep(espera_por_led);             // Espera el tiempo necesario
+                    senal_led_coordinado(fila, columna, 0); // Apaga la led de la posicion correspondiente
+                }
+                else
+                {                                           // Esa parte de la imagen debe de estar apagada
+                    senal_led_coordinado(fila, columna, 0); // Apaga la led
+                    time_sleep(espera_por_led);             // Espera el tiemppo necesario
+                }
+            }
+        }
+        frames++; // Aumentar el contador de los frames mostrados
     }
-
-    // printf("Se mostraron %i de %i frames.", frames, frames_totales);
 }
 
-/*
-    Funcion: Renderizar un arreglo, llamado imagen en este caso.
-    Ingreso: Duracion de la imagen en pantalla, arreglo de la imagen.
-    Salida: NADA.
-    Detalles: Muestra en el display una imagen, es decir un arreglo
-    por un determinado tiempo.
-    Autores: Adolfo T. | Ayuda: Jeremy R.
-*/
 void renderizar_imagen_2(double seg_duracion, int imagen[TAMANO][TAMANO])
 {
-    double tiempo_inicio = time_time(); // Guardar tiempo actual
+    double espera_por_led = TIEMPO_POR_FOTOGRAMA / (TAMANO * TAMANO);
+    double tiempo_inicio = time_time();
 
-    int imagen_actual[TAMANO][TAMANO];    // Guardado de la imagen a mostrar
-    copiar_imagen(imagen, imagen_actual); // Clonar la imagen ingresada a una variable local
-
-    while (((time_time() - tiempo_inicio) seg_duracion))
-    { // Mientras no haya transfucrrido el tiempo ingresado
+    while ((time_time() - tiempo_inicio) < seg_duracion)
+    {
         if (interrupcion_consola() == 1)
         {
-            break; // Termina el proceso de renderizado
-        } // En caso de que se quiera interrumpir el proceso desde la consola
-        mostrar_fotograma(imagen_actual); // Mostrar frame de la imagen
-    }
-
-    // double tiempo_transcurrido = (time_time() - tiempo_inicio); // Tiempo transcurrido
-    // printf("Se mostro la imagen por %d segundos.", tiempo_transcurrido);
-}
-
-void mostrar_fotograma(int imagen[TAMANO][TAMANO])
-{
-    // Calcular el tiempo de espera para cada LED
-    double tiempo_espera = TIEMPO_POR_FOTOGRAMA / (TAMANO * TAMANO);
-
-    // Mostrar el fotograma leyendo la imagen
-    for (int columna = 0; columna < TAMANO; columna++)
-    { // Itera por las columnas
-        for (int fila = 0; fila < TAMANO; fila++)
-        { // Itera por las filas
-            // Obtiene si del arreglo si la led debe de prenserse
-            int valor_pixel = imagen[fila][columna];
-            if (valor_pixel)
-            {                                           // Si el pixel es 1 entonces se prende
-                senal_led_coordinado(fila, columna, 1); // Prende la led de la posicion correspondiente
-                time_sleep(tiempo_espera);              // Espera el tiempo necesario
-                senal_led_coordinado(fila, columna, 0); // Apaga la led de la posicion correspondiente
-            }
-            else
-            {                                           // Esa parte de la imagen debe de estar apagada
-                senal_led_coordinado(fila, columna, 0); // Apaga la led
-                time_sleep(tiempo_espera);              // Espera el tiemppo necesario
+            break;
+        }
+        for (int columna = 0; columna < TAMANO; columna++)
+        {
+            for (int fila = 0; fila < TAMANO; fila++)
+            {
+                int valor_pixel = imagen[fila][columna];
+                if (valor_pixel)
+                {                                           // Si el pixel es 1 entonces se prende
+                    senal_led_coordinado(fila, columna, 1); // Prende la led de la posicion correspondiente
+                    time_sleep(espera_por_led);             // Espera el tiempo necesario
+                    senal_led_coordinado(fila, columna, 0); // Apaga la led de la posicion correspondiente
+                }
+                else
+                {                                           // Esa parte de la imagen debe de estar apagada
+                    senal_led_coordinado(fila, columna, 0); // Apaga la led
+                    time_sleep(espera_por_led);             // Espera el tiemppo necesario
+                }
             }
         }
     }
@@ -738,5 +728,4 @@ int (*animacion_1[4])[TAMANO][TAMANO] = {
     &seta_orejas_arriba,
     &seta_arriba_2,
     &cerdo_raro,
-    &jefe_ojo
-};
+    &jefe_ojo};
