@@ -304,7 +304,7 @@ void leds_en_circular()
 
     while (fila_inicio <= fila_fin && columna_inicio <= columna_fin)
     {
-        // Encender LEDs en la fila superior
+        // Prende el led en columna positiva
         for (int columna = columna_inicio; columna <= columna_fin; columna++)
         {
             senal_led_coordinado(fila_inicio, columna, 1);
@@ -313,31 +313,28 @@ void leds_en_circular()
         }
         fila_inicio++;
 
-        // Encender LEDs en la columna derecha
+        // Prende el led en fila positiva
         for (int fila = fila_inicio; fila <= fila_fin; fila++)
         {
             senal_led_coordinado(fila, columna_fin, 1);
-            // Esperar un corto periodo de tiempo
             time_sleep(0.05);
             senal_led_coordinado(fila, columna_fin, 0);
         }
         columna_fin--;
 
-        // Encender LEDs en la fila inferior
+        // Prende el led en columna negativa
         for (int columna = columna_fin; columna >= columna_inicio; columna--)
         {
             senal_led_coordinado(fila_fin, columna, 1);
-            // Esperar un corto periodo de tiempo
             time_sleep(0.05);
             senal_led_coordinado(fila_fin, columna, 0);
         }
         fila_fin--;
 
-        // Encender LEDs en la columna izquierda
+        // Prende el led en fila negativa
         for (int fila = fila_fin; fila >= fila_inicio; fila--)
         {
             senal_led_coordinado(fila, columna_inicio, 1);
-            // Esperar un corto periodo de tiempo
             time_sleep(0.05);
             senal_led_coordinado(fila, columna_inicio, 0);
         }
