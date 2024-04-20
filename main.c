@@ -50,14 +50,15 @@ int interrupcion_consola();
 void extraer_frame(int frame, int *animacion[], int frame_extraido[TAMANO][TAMANO]);
 
 // Declaracion de arreglos con las imagenes
-int seta_orejas_arriba[TAMANO][TAMANO];
-int seta_arriba_2[TAMANO][TAMANO];
-int cerdo_raro[TAMANO][TAMANO];
-int jefe_ojo[TAMANO][TAMANO];
+int corazon[TAMANO][TAMANO];
+int estrella[TAMANO][TAMANO];
+int barco_papel[TAMANO][TAMANO];
+int flecha_arriba[TAMANO][TAMANO];
+int twiter_x[TAMANO][TAMANO];
 int testx[TAMANO][TAMANO];
 
 // Declaracion de la animacion
-int *animacion_1[4];
+int *animacion_1[5];
 
 // --------------- MAIN ---------------/
 
@@ -142,18 +143,19 @@ double pedir_tiempo_duracion()
     Ingreso: NADA
     Salida: NADA
     Detalles: Muestra un submenu para seleccionar y renderizar una imagen en la matriz de leds.
-    Autores: Bernardo C. | Ayuda: Jeremy R. | Mejoras: Adolfo T.
+    Autores: Bernardo C. | Ayuda: Jeremy R. | Mejoras: Adolfo T y Ignacia M.
 */
 void sub_menu_imagen()
 {
     char opcion;
     while (1)
     { // Muestra el titulo y las opciones
-        printf("\n--- Submenu Imagenes ---\n");
-        printf("1. Imagen 1\n");
-        printf("2. Imagen 2\n");
-        printf("3. Imagen 3\n");
-        printf("4. Imagen 4\n");
+        printf("\n--- Submenu Imagenes ---\n"); //Nombre de las imagenes - Igancia M
+        printf("1. Corazon\n");
+        printf("2. Estrella \n");
+        printf("3. Barco \n");
+        printf("4. Flecha\n");
+        printf("5. Letra X \n");
         printf("B. Retroceder\n");
         printf("Seleccione una imagen o B para retroceder: ");
         scanf(" %c", &opcion); // Lee la seleccion del usuario y la almacena en la variable 'opcion'
@@ -161,16 +163,19 @@ void sub_menu_imagen()
         switch (opcion)
         { // Comienza el bloque switch para manejar la seleccion del usuario
         case '1':
-            renderizar_imagen_frames(pedir_tiempo_duracion(), seta_orejas_arriba); // Opcion que llama a la funcion
+            renderizar_imagen_frames(pedir_tiempo_duracion(), corazon); // Opcion que llama a la funcion
             break;
         case '2':
-            renderizar_imagen_frames(pedir_tiempo_duracion(), seta_arriba_2); // Opcion que llama a la funcion
+            renderizar_imagen_frames(pedir_tiempo_duracion(), estrella); // Opcion que llama a la funcion
             break;
         case '3':
-            renderizar_imagen_tiempo(pedir_tiempo_duracion(), cerdo_raro); // Opcion que llama a la funcion
+            renderizar_imagen_tiempo(pedir_tiempo_duracion(), barco_papel); // Opcion que llama a la funcion
             break;
         case '4':
-            renderizar_imagen_tiempo(pedir_tiempo_duracion(), jefe_ojo); // Opcion que llama a la funcion
+            renderizar_imagen_tiempo(pedir_tiempo_duracion(), flecha_arriba); // Opcion que llama a la funcion
+            break;
+        case '5':
+            renderizar_imagen_tiempo(pedir_tiempo_duracion(),twiter_x); //Opcion que llama a la funcion  Nueva imagen - Ignacia M
             break;
         case 'B':   // Opcion de retornar
             return; // Retorna al menu principal
@@ -186,7 +191,7 @@ void sub_menu_imagen()
     Ingreso: NADA
     Salida: NADA
     Detalles: Muestra un submenu para seleccionar y renderizar una animacion en la matriz de leds.
-    Autores: Bernardo C. | Ayuda: Jeremy R. | Mejoras: Adolfo T.
+    Autores: Bernardo C. | Ayuda: Jeremy R. | Mejoras: Adolfo T | Cambio numero de Imgene: Ignacia M
 */
 void sub_menu_animacion()
 {
@@ -203,10 +208,10 @@ void sub_menu_animacion()
         switch (opcion)
         {
         case '1':
-            renderizar_animacion_frames(pedir_tiempo_duracion(), animacion_1, 4);
+            renderizar_animacion_frames(pedir_tiempo_duracion(), animacion_1, 5);
             break;
         case '2':
-            renderizar_animacion_tiempo(pedir_tiempo_duracion(), animacion_1, 4);
+            renderizar_animacion_tiempo(pedir_tiempo_duracion(), animacion_1, 5);
             break;
         case 'B':   // Opcion de retornar
             return; // Salir del submenu
