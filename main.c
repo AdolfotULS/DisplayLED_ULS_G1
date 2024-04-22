@@ -93,7 +93,7 @@ int main()
 void mostrar_menu()
 {
     char opcion;
-    while (1)
+    while (interrupcion_consola() != 1)
     {
         printf("\n--- Menu Principal ---\n1. Mostrar imagen\n2. Mostrar animacion\nQ. Salir\nSeleccione una opcion: ");
         scanf(" %c", &opcion);
@@ -148,7 +148,7 @@ double pedir_tiempo_duracion()
 void sub_menu_imagen()
 {
     char opcion;
-    while (1)
+    while (interrupcion_consola() != 1)
     { // Muestra el titulo y las opciones
         printf("\n--- Submenu Imagenes ---\n"); //Nombre de las imagenes - Igancia M
         printf("1. Corazon\n");
@@ -196,7 +196,7 @@ void sub_menu_imagen()
 void sub_menu_animacion()
 {
     char opcion;
-    while (1)
+    while (interrupcion_consola() != 1)
     { // Muestra el titulo y las opciones
         printf("\n--- Submenu Animaciones ---\n");
         printf("1. Animacion 1\n");
