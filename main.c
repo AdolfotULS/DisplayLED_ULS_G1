@@ -41,8 +41,8 @@ void verificar_estado_leds();
 // Funciones del display
 void renderizar_animacion_tiempo(double seg_duracion, int *animacion[], int frames_animacion);
 void renderizar_animacion_frames(double seg_duracion, int *animacion[], int frames_animacion);
-void renderizar_imagen_frames(double seg_duracion, int imagen[TAMANO][TAMANO]);
-void renderizar_imagen_tiempo(double seg_duracion, int imagen[TAMANO][TAMANO]);
+void renderizar_imagen_frames(double seg_duracion, int imagen[TAMANO][TAMANO], int es_animacion);
+void renderizar_imagen_tiempo(double seg_duracion, int imagen[TAMANO][TAMANO], int es_animacion);
 
 // Funciones de utilidad
 void sigint_handler(int signal);
@@ -126,12 +126,12 @@ double pedir_tiempo_duracion()
 {
     double duracion_imagen = 1;
 
-    printf("\nTiempo de duracion (segundos): "); 
+    printf("\nTiempo de duracion (segundos): ");
     scanf("%lf", &duracion_imagen); // Lee el valor ingresado por el usuario y lo guarda en la variable duracion_imagen
 
-    while (duracion_imagen <= 0) // Mientras el valor ingresado sea valido
+    while (duracion_imagen < 0) // Mientras el valor ingresado sea valido
     {
-        printf("Duracion invalida. Ingrese un valor positivo: "); 
+        printf("Duracion invalida. Ingrese un valor positivo: ");
         scanf("%lf", &duracion_imagen); // Lee nuevamente el valor ingresado por el usuario y lo guarda en la variable duracion_imagen
     }
 
@@ -149,8 +149,8 @@ void sub_menu_imagen()
 {
     char opcion;
     while (interrupcion_consola() != 1)
-    { // Muestra el titulo y las opciones
-        printf("\n--- Submenu Imagenes ---\n"); //Nombre de las imagenes - Igancia M
+    {                                           // Muestra el titulo y las opciones
+        printf("\n--- Submenu Imagenes ---\n"); // Nombre de las imagenes - Igancia M
         printf("1. Corazon\n");
         printf("2. Estrella \n");
         printf("3. Barco \n");
@@ -163,19 +163,19 @@ void sub_menu_imagen()
         switch (opcion)
         { // Comienza el bloque switch para manejar la seleccion del usuario
         case '1':
-            renderizar_imagen_frames(pedir_tiempo_duracion(), corazon); // Opcion que llama a la funcion
+            renderizar_imagen_frames(pedir_tiempo_duracion(), corazon, 0); // Opcion que llama a la funcion
             break;
         case '2':
-            renderizar_imagen_frames(pedir_tiempo_duracion(), estrella); // Opcion que llama a la funcion
+            renderizar_imagen_frames(pedir_tiempo_duracion(), estrella, 0); // Opcion que llama a la funcion
             break;
         case '3':
-            renderizar_imagen_tiempo(pedir_tiempo_duracion(), barco_papel); // Opcion que llama a la funcion
+            renderizar_imagen_tiempo(pedir_tiempo_duracion(), barco_papel, 0); // Opcion que llama a la funcion
             break;
         case '4':
-            renderizar_imagen_tiempo(pedir_tiempo_duracion(), flecha_arriba); // Opcion que llama a la funcion
+            renderizar_imagen_tiempo(pedir_tiempo_duracion(), flecha_arriba, 0); // Opcion que llama a la funcion
             break;
         case '5':
-            renderizar_imagen_tiempo(pedir_tiempo_duracion(),twiter_x); //Opcion que llama a la funcion  Nueva imagen - Ignacia M
+            renderizar_imagen_tiempo(pedir_tiempo_duracion(), twiter_x, 0); // Opcion que llama a la funcion  Nueva imagen - Ignacia M
             break;
         case 'B':   // Opcion de retornar
             return; // Retorna al menu principal
@@ -191,7 +191,7 @@ void sub_menu_imagen()
     Ingreso: NADA
     Salida: NADA
     Detalles: Muestra un submenu para seleccionar y renderizar una animacion en la matriz de leds.
-    Autores: Bernardo C. | Ayuda: Jeremy R. | Mejoras: Adolfo T | Cambio numero de Imgene: Ignacia M
+    Autores: Bernardo C. | Ayuda: Jeremy R. | Mejoras: Adolfo T y Ignacia M.
 */
 void sub_menu_animacion()
 {
@@ -445,7 +445,7 @@ void verificar_estado_leds()
             gpioSetMode(pines_positivos[pin], PI_OUTPUT);
             gpioSetMode(pines_negativos[pin], PI_OUTPUT);
         }
-        
+
         // Apaga el LED correspondiente
         control_led(pines_positivos[pin], pines_negativos[pin], 0);
     }
@@ -465,23 +465,23 @@ void renderizar_animacion_tiempo(double seg_duracion, int *animacion[], int fram
 {
     int frame_actual = 0;                      // Frame actual que se esta mostrando
     int frames_totales = frames_animacion - 1; // Frames totales de la animacion
-    double tiempo_inicio = time_time();         // Asignar tiempo actual
+    double tiempo_inicio = time_time();        // Asignar tiempo actual
 
-    while ((time_time()- tiempo_inicio) < seg_duracion) // Ejecutar mientras el tiempo transcurrido sea menor a la duracion
+    while (((time_time() - tiempo_inicio) < seg_duracion) || seg_duracion == 0) // Ejecutar mientras el tiempo transcurrido sea menor a la duracion
     {
         if (interrupcion_consola() == 1)
         {
             break; // Termina el proceso de renderizado
-        } // En caso de que se quiera interrumpir el proceso desde la consola
+        }          // En caso de que se quiera interrumpir el proceso desde la consola
         if (frame_actual > frames_totales)
         {                     // Si se recorrieron todos los frames de la animacion
             frame_actual = 0; // Se devuelve al primero
         }
 
-        int imagen_actual[TAMANO][TAMANO];                                       // Guardado de la imagen a mostrar
-        extraer_frame(frame_actual, animacion, imagen_actual);                   // Extraer el frame que corresponde de la animacion
-        renderizar_imagen_tiempo(TIEMPO_POR_FOTOGRAMA_ANIMACION, imagen_actual); // Renderizar imagen por el tiempo correspondiente
-        frame_actual++;                                                          // Avanzar el contador del frame actual
+        int imagen_actual[TAMANO][TAMANO];                                          // Guardado de la imagen a mostrar
+        extraer_frame(frame_actual, animacion, imagen_actual);                      // Extraer el frame que corresponde de la animacion
+        renderizar_imagen_tiempo(TIEMPO_POR_FOTOGRAMA_ANIMACION, imagen_actual, 1); // Renderizar imagen por el tiempo correspondiente
+        frame_actual++;                                                             // Avanzar el contador del frame actual
     }
 }
 
@@ -501,22 +501,22 @@ void renderizar_animacion_frames(double seg_duracion, int *animacion[], int fram
     int frame_actual = 0;                                                 // Frame actual que se esta mostrando
     int frames_anim = frames_animacion - 1;                               // Frames totales de la animacion
 
-    while (frame_contador < frames_totales) // Mientras no se hayan mostrado todos los frames se ejecuta
+    while ((frame_contador < frames_totales) || seg_duracion == 0) // Mientras no se hayan mostrado todos los frames se ejecuta
     {
         if (interrupcion_consola() == 1)
         {
             break; // Termina el proceso de renderizado
-        } // En caso de que se quiera interrumpir el proceso desde la consola
+        }          // En caso de que se quiera interrumpir el proceso desde la consola
         if (frame_actual > frames_anim)
         {                     // Si se recorreieron todos los frames de la animacion
             frame_actual = 0; // Se devuelve al primero
         }
 
-        int imagen_actual[TAMANO][TAMANO];                                       // Guardado de la imagen a mostrar
-        extraer_frame(frame_actual, animacion, imagen_actual);                   // Extraer el frame que corresponde de la animacion
-        renderizar_imagen_frames(TIEMPO_POR_FOTOGRAMA_ANIMACION, imagen_actual); // Renderizar imagen por el tiempo correspondiente
-        frame_actual++;                                                          // Avanzar el contador del frame actual
-        frame_contador++;                                                        // Avanzar el contador del frame actual
+        int imagen_actual[TAMANO][TAMANO];                                          // Guardado de la imagen a mostrar
+        extraer_frame(frame_actual, animacion, imagen_actual);                      // Extraer el frame que corresponde de la animacion
+        renderizar_imagen_frames(TIEMPO_POR_FOTOGRAMA_ANIMACION, imagen_actual, 1); // Renderizar imagen por el tiempo correspondiente
+        frame_actual++;                                                             // Avanzar el contador del frame actual
+        frame_contador++;                                                           // Avanzar el contador del frame actual
     }
 }
 
@@ -528,15 +528,15 @@ void renderizar_animacion_frames(double seg_duracion, int *animacion[], int fram
     por un determinada  cantidad de frames basado en el tiempo.
     Autores: Jeremy R. | Mejoras: Adolfo T.
 */
-void renderizar_imagen_frames(double seg_duracion, int imagen[TAMANO][TAMANO])
+void renderizar_imagen_frames(double seg_duracion, int imagen[TAMANO][TAMANO], int es_animacion)
 {
     int frames_totales = seg_duracion * FOTOGRAMAS_POR_SEGUNDO; // Cantidad de frames posibles en el tiempo de duración
     double espera_por_led = TIEMPO_POR_FOTOGRAMA / (TAMANO * TAMANO);
     int frames = 0; // Contador de frames mostrados
 
-    while (frames < frames_totales) // Mientras no se hayan mostrado todos los frames
+    while ((frames < frames_totales || seg_duracion == 0) && es_animacion == 0) // Mientras no se hayan mostrado todos los frames
     {
-        if (interrupcion_consola() == 1) // En caso de que se quiera interrumpir el proceso desde la consola
+        if (interrupcion_consola() == 1 && es_animacion == 0) // En caso de que se quiera interrumpir el proceso desde la consola
         {
             break; // Termina el proceso de renderizado
         }
@@ -568,18 +568,18 @@ void renderizar_imagen_frames(double seg_duracion, int imagen[TAMANO][TAMANO])
     Funcion: Renderizar imagen e.
     Ingreso: Duracion de la imagen, arreglo de la imagen.
     Salida: NADA.
-    Detalles: Muestra en el display una imagen, por un determinado 
+    Detalles: Muestra en el display una imagen, por un determinado
     tiempo especificado en segundos.
     Autores: Adolfo T. | Mejoras: Jeremy T.
 */
-void renderizar_imagen_tiempo(double seg_duracion, int imagen[TAMANO][TAMANO])
+void renderizar_imagen_tiempo(double seg_duracion, int imagen[TAMANO][TAMANO], int es_animacion)
 {
     double espera_por_led = TIEMPO_POR_FOTOGRAMA / (TAMANO * TAMANO); // Calcula el tiempo de espera por cada LED
-    double tiempo_inicio = time_time(); // Obtiene el tiempo de inicio
+    double tiempo_inicio = time_time();                               // Obtiene el tiempo de inicio
 
-    while ((time_time() - tiempo_inicio) < seg_duracion) // Mientras no se haya pasado el tiempo de duracion
+    while (((time_time() - tiempo_inicio) < seg_duracion || seg_duracion == 0) && es_animacion == 0) // Mientras no se haya pasado el tiempo de duracion
     {
-        if (interrupcion_consola() == 1) // Verifica si se ha solicitado una interrupcion desde la consola
+        if (interrupcion_consola() == 1 && es_animacion == 0) // Verifica si se ha solicitado una interrupcion desde la consola
         {
             break; // Si se ha solicitado una interrupción, sale del bucle
         }
@@ -593,13 +593,13 @@ void renderizar_imagen_tiempo(double seg_duracion, int imagen[TAMANO][TAMANO])
                 if (valor_pixel) // Si el valor del pixel es 1 (encendido)
                 {
                     senal_led_coordinado(fila, columna, 1); // Enciende el LED correspondiente
-                    time_sleep(espera_por_led); // Espera el tiempo correspondiente
+                    time_sleep(espera_por_led);             // Espera el tiempo correspondiente
                     senal_led_coordinado(fila, columna, 0); // Apaga el LED correspondiente
                 }
                 else // Si el valor del pixel es 0 (apagado)
                 {
                     senal_led_coordinado(fila, columna, 0); // Apaga el LED correspondiente
-                    time_sleep(espera_por_led); // Espera el tiempo correspondiente
+                    time_sleep(espera_por_led);             // Espera el tiempo correspondiente
                 }
             }
         }
@@ -688,8 +688,7 @@ int corazon[TAMANO][TAMANO] = {
     {0, 1, 1, 1, 1, 0, 0, 0},
     {0, 1, 1, 1, 1, 0, 0, 0},
     {0, 0, 1, 1, 0, 0, 0, 0},
-    {0, 0, 0, 1, 0, 0, 0, 0}
-};
+    {0, 0, 0, 1, 0, 0, 0, 0}};
 
 int estrella[TAMANO][TAMANO] = {
     {1, 0, 1, 0, 1, 0, 1, 0},
@@ -699,8 +698,7 @@ int estrella[TAMANO][TAMANO] = {
     {1, 0, 1, 0, 1, 0, 1, 0},
     {0, 1, 0, 1, 0, 1, 0, 1},
     {1, 0, 1, 0, 1, 0, 1, 0},
-    {0, 1, 0, 1, 0, 1, 0, 1}
-};
+    {0, 1, 0, 1, 0, 1, 0, 1}};
 
 int barco_papel[TAMANO][TAMANO] = {
     {0, 0, 0, 0, 0, 0, 0, 0},
@@ -710,8 +708,7 @@ int barco_papel[TAMANO][TAMANO] = {
     {0, 1, 1, 0, 0, 1, 1, 0},
     {0, 0, 1, 1, 1, 1, 0, 0},
     {0, 0, 1, 1, 1, 1, 0, 0},
-    {1, 1, 0, 0, 0, 0, 1, 1}
-};
+    {1, 1, 0, 0, 0, 0, 1, 1}};
 
 int flecha_arriba[TAMANO][TAMANO] = {
     {0, 0, 0, 1, 0, 0, 0, 0},
@@ -721,10 +718,9 @@ int flecha_arriba[TAMANO][TAMANO] = {
     {0, 0, 0, 1, 0, 0, 0, 0},
     {0, 0, 0, 1, 0, 0, 0, 0},
     {0, 0, 0, 1, 0, 0, 0, 0},
-    {0, 0, 0, 1, 0, 0, 0, 0}
-};
+    {0, 0, 0, 1, 0, 0, 0, 0}};
 
-int twiter_x[TAMANO][TAMANO]={
+int twiter_x[TAMANO][TAMANO] = {
     {1, 0, 0, 0, 0, 0, 0, 1},
     {0, 1, 0, 0, 0, 0, 1, 0},
     {0, 0, 1, 0, 0, 1, 0, 0},
@@ -732,12 +728,9 @@ int twiter_x[TAMANO][TAMANO]={
     {0, 0, 0, 1, 1, 0, 0, 0},
     {0, 0, 1, 0, 0, 1, 0, 0},
     {0, 1, 0, 0, 0, 0, 1, 0},
-    {1, 0, 0, 0, 0, 0, 0, 1}
-};
+    {1, 0, 0, 0, 0, 0, 0, 1}};
 
-
-
-int testx[TAMANO][TAMANO] = { //imagen de inicializacion
+int testx[TAMANO][TAMANO] = { // imagen de inicializacion
     {1, 0, 0, 0, 0, 0, 0, 1},
     {0, 1, 0, 0, 0, 0, 1, 0},
     {0, 0, 1, 0, 0, 1, 0, 0},
@@ -754,5 +747,4 @@ int (*animacion_1[5])[TAMANO][TAMANO] = {
     &estrella,
     &barco_papel,
     &flecha_arriba,
-    &twiter_x
-};
+    &twiter_x};
