@@ -472,7 +472,7 @@ void renderizar_animacion_tiempo(double seg_duracion, int *animacion[], int fram
         if (interrupcion_consola() == 1)
         {
             break; // Termina el proceso de renderizado
-        }          // En caso de que se quiera interrumpir el proceso desde la consola
+        } // En caso de que se quiera interrumpir el proceso desde la consola
         if (frame_actual > frames_totales)
         {                     // Si se recorrieron todos los frames de la animacion
             frame_actual = 0; // Se devuelve al primero
@@ -506,7 +506,7 @@ void renderizar_animacion_frames(double seg_duracion, int *animacion[], int fram
         if (interrupcion_consola() == 1)
         {
             break; // Termina el proceso de renderizado
-        }          // En caso de que se quiera interrumpir el proceso desde la consola
+        } // En caso de que se quiera interrumpir el proceso desde la consola
         if (frame_actual > frames_anim)
         {                     // Si se recorreieron todos los frames de la animacion
             frame_actual = 0; // Se devuelve al primero
@@ -536,10 +536,14 @@ void renderizar_imagen_frames(double seg_duracion, int imagen[TAMANO][TAMANO], i
 
     while ((frames < frames_totales || seg_duracion == 0) && es_animacion == 0) // Mientras no se hayan mostrado todos los frames
     {
-        if (interrupcion_consola() == 1 && es_animacion == 0) // En caso de que se quiera interrumpir el proceso desde la consola
+        if (!es_animacion) // Si no es animacion habilitar la interrupcion
         {
-            break; // Termina el proceso de renderizado
+            if (interrupcion_consola() == 1) // En caso de que se quiera interrumpir el proceso desde la consola
+            {
+                break; // Termina el proceso de renderizado
+            }
         }
+
         for (int columna = 0; columna < TAMANO; columna++)
         {
             for (int fila = 0; fila < TAMANO; fila++)
@@ -579,9 +583,12 @@ void renderizar_imagen_tiempo(double seg_duracion, int imagen[TAMANO][TAMANO], i
 
     while (((time_time() - tiempo_inicio) < seg_duracion || seg_duracion == 0) && es_animacion == 0) // Mientras no se haya pasado el tiempo de duracion
     {
-        if (interrupcion_consola() == 1 && es_animacion == 0) // Verifica si se ha solicitado una interrupcion desde la consola
+        if (!es_animacion) // Si no es animacion habilitar la interrupcion
         {
-            break; // Si se ha solicitado una interrupción, sale del bucle
+            if (interrupcion_consola() == 1) // En caso de que se quiera interrumpir el proceso desde la consola
+            {
+                break; // Termina el proceso de renderizado
+            }
         }
 
         for (int columna = 0; columna < TAMANO; columna++) // Itera sobre las columnas de la matriz de LEDs
@@ -654,8 +661,7 @@ int interrupcion_consola()
 /*
     Funcion: Extrae un frame de la animacion
     Ingreso: Frame a extraer, arreglo de la animacion, donde se guardara el frame extraido.
-    Salida: NADA.
-    Detalles: Extrae del arreglo de la animacion una sola imagen y la guarda en una variable.
+    Salida: NADA.    Detalles: Extrae del arreglo de la animacion una sola imagen y la guarda en una variable.
     Autores: Adolfo T.
 */
 void extraer_frame(int frame, int *animacion[], int frame_extraido[TAMANO][TAMANO])
