@@ -7,7 +7,7 @@
 // --------------- GLOBALES ---------------
 
 #define TAMANO 8                                                                // Tamaño matriz de LEDs
-#define FOTOGRAMAS_POR_SEGUNDO 65                                               // Velocidad de otoframas por segundo para imagenes
+#define FOTOGRAMAS_POR_SEGUNDO 75                                               // Velocidad de otoframas por segundo para imagenes
 #define TIEMPO_POR_FOTOGRAMA (1.0 / FOTOGRAMAS_POR_SEGUNDO)                     // Tiempo de demora de un frame
 #define FOTOGRAMAS_POR_SEGUNDO_ANIMACION 3                                      // Velocidad de fotogramas para animaciones
 #define TIEMPO_POR_FOTOGRAMA_ANIMACION (1.0 / FOTOGRAMAS_POR_SEGUNDO_ANIMACION) // Teimpo de demora por imagen de la animacion
@@ -91,7 +91,7 @@ int main()
 void mostrar_menu()
 {
     char opcion;
-    while (interrupcion_consola() != 1)
+    while (1)
     {
         printf("\n--- Menu Principal ---\n1. Mostrar imagen\n2. Mostrar animacion\nQ. Salir\nSeleccione una opcion: ");
         scanf(" %c", &opcion);
@@ -146,7 +146,7 @@ double pedir_tiempo_duracion()
 void sub_menu_imagen()
 {
     char opcion;
-    while (interrupcion_consola() != 1)
+    while (1)
     {                                           // Muestra el titulo y las opciones
         printf("\n--- Submenu Imagenes ---\n"); // Nombre de las imagenes - Igancia M
         printf("1. Corazon\n");
@@ -194,7 +194,7 @@ void sub_menu_imagen()
 void sub_menu_animacion()
 {
     char opcion;
-    while (interrupcion_consola() != 1)
+    while (1)
     { // Muestra el titulo y las opciones
         printf("\n--- Submenu Animaciones ---\n");
         printf("1. Animacion 1\n");
@@ -480,6 +480,7 @@ void renderizar_animacion_tiempo(double seg_duracion, int *animacion[], int fram
         renderizar_imagen_tiempo(TIEMPO_POR_FOTOGRAMA_ANIMACION, imagen_actual, 1); // Renderizar imagen por el tiempo correspondiente
         frame_actual++;                                                             // Avanzar el contador del frame actual
     }
+    verificar_estado_leds(); // Verifica el estado de los LEDs despues de mostrar la imagen
 }
 
 /*
@@ -497,9 +498,12 @@ void renderizar_imagen_tiempo(double seg_duracion, int imagen[TAMANO][TAMANO], i
 
     while ((time_time() - tiempo_inicio) < seg_duracion || seg_duracion == 0) // Mientras no se haya pasado el tiempo de duracion
     {
-        if (interrupcion_consola() == 1 && !es_animacion) // En caso de que se quiera interrumpir el proceso desde la consola
+        if (!es_animacion) // Si no es una animacion
         {
-            break; // Termina el proceso de renderizado
+            if (interrupcion_consola() == 1) // En caso de que se quiera interrumpir el proceso desde la consola
+            {
+                break; // Termina el proceso de renderizado
+            }
         }
 
         for (int columna = 0; columna < TAMANO; columna++) // Itera sobre las columnas de la matriz de LEDs
