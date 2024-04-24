@@ -56,7 +56,7 @@ int twiter_x[TAMANO][TAMANO];
 int testx[TAMANO][TAMANO];
 
 // Declaracion de la animacion
-int *animacion_1[5];
+int (*animacion_1[5])[TAMANO][TAMANO];
 
 // --------------- MAIN ---------------/
 
@@ -437,7 +437,7 @@ void verificar_estado_leds()
     for (int pin = 0; pin < TAMANO; pin++) // Itera sobre los pines GPIO
     {
         // Verifica si el pin positivo y el pin negativo no estan configurados como salida
-        if (gpioGetMode(pin_positivo[pin]) != PI_OUTPUT || gpioGetMode(pin_negativo[pin]) != PI_OUTPUT)
+        if (gpioGetMode(pines_positivos[pin]) != PI_OUTPUT || gpioGetMode(pines_negativos[pin]) != PI_OUTPUT)
         {
             // Si algún pin no esta configurado como salida, lo configura como salida
             gpioSetMode(pines_positivos[pin], PI_OUTPUT);
@@ -470,7 +470,7 @@ void renderizar_animacion_tiempo(double seg_duracion, int *animacion[], int fram
         if (interrupcion_consola() == 1)
         {
             break; // Termina el proceso de renderizado
-        }          // En caso de que se quiera interrumpir el proceso desde la consola
+        } // En caso de que se quiera interrumpir el proceso desde la consola
         if (frame_actual > frames_totales)
         {                     // Si se recorrieron todos los frames de la animacion
             frame_actual = 0; // Se devuelve al primero
@@ -598,14 +598,14 @@ void extraer_frame(int frame, int *animacion[], int frame_extraido[TAMANO][TAMAN
 */
 
 int corazon[TAMANO][TAMANO] = {
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 1, 0, 0, 0, 0, 0},
-    {0, 1, 1, 1, 1, 0, 0, 0},
-    {0, 1, 1, 1, 1, 0, 0, 0},
-    {0, 0, 1, 1, 0, 0, 0, 0},
-    {0, 0, 0, 1, 0, 0, 0, 0}};
+    {0, 1, 1, 0, 0, 1, 1, 0},
+    {1, 0, 0, 1, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1},
+    {0, 1, 0, 0, 0, 0, 1, 0},
+    {0, 0, 1, 0, 0, 1, 0, 0},
+    {0, 0, 0, 1, 1, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0}};
 
 int estrella[TAMANO][TAMANO] = {
     {1, 0, 1, 0, 1, 0, 1, 0},
